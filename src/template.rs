@@ -17,6 +17,7 @@ static FONT_MEDIUM_ITALIC: &[u8] = include_bytes!("../fonts/Roboto-MediumItalic.
 static FONT_REGULAR: &[u8] = include_bytes!("../fonts/Roboto-Regular.ttf");
 static FONT_THIN: &[u8] = include_bytes!("../fonts/Roboto-Thin.ttf");
 static FONT_THIN_ITALIC: &[u8] = include_bytes!("../fonts/Roboto-ThinItalic.ttf");
+static CC_BY: &str = include_str!("../templates/cc/by-sa.typ");
 
 // Implement Into<Dict> manually, so we can just pass the struct
 // to the compile function.
@@ -32,6 +33,7 @@ struct Content {
     assigner: NamedObject,
     assignee: NamedObject,
     asset: NamedObject,
+    cc: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, IntoValue, IntoDict)]
@@ -45,12 +47,7 @@ pub struct NamedObject {
     pub name: String,
 }
 
-pub fn render_pdf(
-    content: Vec<ContractTerms>,
-    assigner: NamedObject,
-    assignee: NamedObject,
-    asset: NamedObject,
-) -> Result<Vec<u8>> {
+fn load_fonts() -> Result<Vec<Font>> {
     let mut fonts = Vec::new();
     fonts.push(
         Font::new(Bytes::from(FONT_BLACK), 0).ok_or_else(|| anyhow!("Unable to query Font"))?,
@@ -91,17 +88,28 @@ pub fn render_pdf(
         Font::new(Bytes::from(FONT_THIN_ITALIC), 0)
             .ok_or_else(|| anyhow!("Unable to query Font"))?,
     );
+    Ok(fonts)
+}
 
+pub fn render_pdf(
+    content: Vec<ContractTerms>,
+    assigner: NamedObject,
+    assignee: NamedObject,
+    asset: NamedObject,
+) -> Result<Vec<u8>> {
     // Read in fonts and the main source file.
     // We can use this template more than once, if needed (Possibly
     // with different input each time).
-    let template = TypstTemplate::new(fonts, TEMPLATE_FILE);
+    let mut template = TypstTemplate::new(load_fonts()?, TEMPLATE_FILE);
+    template = template.with_package_file_resolver(None);
 
     let content = Content {
         v: content,
         assigner,
         assignee,
         asset,
+        //cc: None,
+        cc: Some(CC_BY.to_string()),
     };
 
     // Run it

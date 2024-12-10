@@ -7,6 +7,7 @@
 #let assigner = inputs.assigner.name
 #let assignee = inputs.assignee.name
 #let asset = inputs.asset.name
+#let cc = inputs.at("cc", default: none)
 
 #text(weight: "bold")[#align(center)[Contract on the use of provided data]]
 
@@ -36,12 +37,19 @@ For the access and use of the data asset: #strong[#asset]
 #v(5%)
 
 = Terms
-#v(5%)
-#for (i, elem) in content.enumerate() [
+
+#set par(justify: true)
+#v(1%)
+
+#if cc != none [
+  #eval(cc, mode: "markup")
+]else[
+  #for (i, elem) in content.enumerate() [
   #par(justify: true)[
-  == #i. #elem.heading
-  #v(2%)
-  #elem.text
-  #lorem(50)
+    == #i. #elem.heading
+    #v(2%)
+    #elem.text
+    #lorem(50)
+    ]
   ]
 ]

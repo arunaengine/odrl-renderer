@@ -17,7 +17,7 @@ tokio = { version = "1.41.1", features = ["full"] }
 typst = "0.12"
 derive_typst_intoval = "0.3.0"
 typst-pdf = "0.12.0"
-typst-as-lib = "0.11.1"
+typst-as-lib = { version = "0.11.1", features = ["packages"] }
 anyhow = "1.0.94"
 utoipa-axum = "0.1.2"
 serde = { version = "1.0.215", features = ["derive"] }
