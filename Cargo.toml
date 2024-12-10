@@ -1,0 +1,23 @@
+[package]
+name = "odrl-renderer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+utoipa = { version = "5.2.0", features = [
+    "chrono",
+    "axum_extras",
+    "ulid",
+    "url",
+] }
+utoipa-swagger-ui = { version = "8.0.3", features = ["axum"] }
+tower-http = { version = "0.6.1", features = ["cors", "trace"] }
+axum = "0.7.7"
+tokio = { version = "1.41.1", features = ["full"] }
+typst = "0.12"
+derive_typst_intoval = "0.3.0"
+typst-pdf = "0.12.0"
+typst-as-lib = "0.11.1"
+anyhow = "1.0.94"
+utoipa-axum = "0.1.2"
+serde = { version = "1.0.215", features = ["derive"] }
