@@ -18,13 +18,44 @@ use crate::template;
 pub struct ArunaApi;
 
 pub fn router() -> OpenApiRouter {
-    OpenApiRouter::new().routes(routes!(render_pdf))
+    OpenApiRouter::new()
+        .routes(routes!(render_pdf))
+        .routes(routes!(validate_odrl))
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct Term {
     pub heading: String,
     pub text: String,
+}
+
+/// Render a data usage agreement as a PDF.
+#[utoipa::path(
+    post,
+    path = "/validate",
+    request_body = serde_json::Value, //odrl::model::policy::AgreementPolicy,
+    responses(
+        (status = 200, content_type = "text/xml", body = Vec<u8>),
+    ),
+)]
+pub async fn validate_odrl(Json(request): Json<serde_json::Value>) -> impl IntoResponse {
+    let result = crate::validate::validate_odrl(request);
+    let mut headers = HeaderMap::new();
+
+    match result {
+        Ok(pdf) => {
+            headers.insert(header::CONTENT_TYPE, "text/xml".parse().unwrap());
+            (StatusCode::OK, headers, pdf)
+        }
+        Err(e) => {
+            eprintln!("Failed to render PDF: {:?}", e);
+            (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                headers,
+                e.to_string().as_bytes().to_vec(),
+            )
+        }
+    }
 }
 
 /// Render a data usage agreement as a PDF.
