@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use derive_typst_intoval::{IntoDict, IntoValue};
+use odrl::model::policy::AgreementPolicy;
 use typst::foundations::{Bytes, Dict, IntoValue};
 use typst::text::Font;
 use typst_as_lib::TypstTemplate;
@@ -30,9 +31,10 @@ impl From<Content> for Dict {
 #[derive(Debug, Clone, IntoValue, IntoDict)]
 struct Content {
     v: Vec<ContractTerms>,
-    assigner: NamedObject,
-    assignee: NamedObject,
-    asset: NamedObject,
+    assigner: String,
+    assignee: String,
+    asset: String,
+    odrl: String,
     cc: Option<String>,
 }
 
@@ -40,11 +42,6 @@ struct Content {
 pub struct ContractTerms {
     pub heading: String,
     pub text: String,
-}
-
-#[derive(Debug, Clone, Default, IntoValue, IntoDict)]
-pub struct NamedObject {
-    pub name: String,
 }
 
 fn load_fonts() -> Result<Vec<Font>> {
@@ -91,23 +88,39 @@ fn load_fonts() -> Result<Vec<Font>> {
     Ok(fonts)
 }
 
-pub fn render_pdf(
-    content: Vec<ContractTerms>,
-    assigner: NamedObject,
-    assignee: NamedObject,
-    asset: NamedObject,
-) -> Result<Vec<u8>> {
+pub fn render_pdf(policy: AgreementPolicy) -> Result<Vec<u8>> {
     // Read in fonts and the main source file.
     // We can use this template more than once, if needed (Possibly
     // with different input each time).
-    let mut template = TypstTemplate::new(load_fonts()?, TEMPLATE_FILE);
-    template = template.with_package_file_resolver(None);
+    let template = TypstTemplate::new(load_fonts()?, TEMPLATE_FILE);
+
+    let assignee = policy
+        .assignee
+        .uid
+        .as_ref()
+        .ok_or_else(|| anyhow!("No asset found in policy"))?
+        .clone();
+    let assigner = policy
+        .assigner
+        .uid
+        .as_ref()
+        .ok_or_else(|| anyhow!("No asset found in policy"))?
+        .clone();
+    let asset = policy
+        .target
+        .as_ref()
+        .ok_or_else(|| anyhow!("No asset found in policy"))?
+        .uid
+        .as_ref()
+        .ok_or_else(|| anyhow!("No asset found in policy"))?
+        .clone();
 
     let content = Content {
-        v: content,
+        v: vec![],
         assigner,
         assignee,
         asset,
+        odrl: serde_json::to_string(&policy).unwrap(),
         //cc: None,
         cc: Some(CC_BY.to_string()),
     };

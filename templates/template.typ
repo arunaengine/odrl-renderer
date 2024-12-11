@@ -8,6 +8,7 @@
 #let assignee = inputs.assignee.name
 #let asset = inputs.asset.name
 #let cc = inputs.at("cc", default: none)
+#let odrl = inputs.odrl
 
 #text(weight: "bold")[#align(center)[Contract on the use of provided data]]
 
@@ -53,3 +54,5 @@ For the access and use of the data asset: #strong[#asset]
     ]
   ]
 ]
+
+#pdf.embed.decode(odrl, "odrl.jsonld", name: "odrl.jsonld", description: "Associated ODRL policy", mime-type: "application/ld+json", relationship: "supplement")

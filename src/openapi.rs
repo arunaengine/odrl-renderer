@@ -27,44 +27,20 @@ pub struct Term {
     pub text: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, ToSchema)]
-pub struct RenderRequest {
-    pub content: Vec<Term>,
-    pub assigner: String,
-    pub assignee: String,
-    pub asset: String,
-}
-
 /// Render a data usage agreement as a PDF.
 #[utoipa::path(
     post,
     path = "/render",
-    request_body = RenderRequest,
+    request_body = odrl::model::policy::AgreementPolicy,
     responses(
-        (status = 200, body = Vec<u8>),
+        (status = 200, content_type = "application/pdf", body = Vec<u8>),
 
     ),
 )]
-pub async fn render_pdf(Json(request): Json<RenderRequest>) -> impl IntoResponse {
-    let result = template::render_pdf(
-        request
-            .content
-            .iter()
-            .map(|term| template::ContractTerms {
-                heading: term.heading.clone(),
-                text: term.text.clone(),
-            })
-            .collect(),
-        template::NamedObject {
-            name: request.assigner.clone(),
-        },
-        template::NamedObject {
-            name: request.assignee.clone(),
-        },
-        template::NamedObject {
-            name: request.asset.clone(),
-        },
-    );
+pub async fn render_pdf(
+    Json(request): Json<odrl::model::policy::AgreementPolicy>,
+) -> impl IntoResponse {
+    let result = template::render_pdf(request);
 
     let mut headers = HeaderMap::new();
 
