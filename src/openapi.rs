@@ -31,7 +31,7 @@ pub struct Term {
 #[utoipa::path(
     post,
     path = "/render",
-    request_body = odrl::model::policy::AgreementPolicy,
+    request_body = serde_json::Value, //odrl::model::policy::AgreementPolicy,
     responses(
         (status = 200, content_type = "application/pdf", body = Vec<u8>),
 
@@ -41,6 +41,7 @@ pub async fn render_pdf(
     Json(request): Json<odrl::model::policy::AgreementPolicy>,
 ) -> impl IntoResponse {
     let result = template::render_pdf(request);
+    //let result: std::result::Result<Vec<u8>, anyhow::Error> = Ok(vec![]);
 
     let mut headers = HeaderMap::new();
 
