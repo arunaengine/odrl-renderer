@@ -2,9 +2,10 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
 use derive_typst_intoval::{IntoDict, IntoValue};
+use generic_odrl::generic_action::Action;
+use generic_odrl::generic_asset::Asset;
+use generic_odrl::generic_party::Party;
 use generic_odrl::generics::StringOrX;
-use odrl::model::asset::Asset;
-use odrl::model::party::Party;
 use serde::{Deserialize, Serialize};
 use typst::foundations::{Bytes, Dict, IntoValue};
 use typst::text::Font;
@@ -24,7 +25,7 @@ static FONT_MEDIUM_ITALIC: &[u8] = include_bytes!("../fonts/Roboto-MediumItalic.
 static FONT_REGULAR: &[u8] = include_bytes!("../fonts/Roboto-Regular.ttf");
 static FONT_THIN: &[u8] = include_bytes!("../fonts/Roboto-Thin.ttf");
 static FONT_THIN_ITALIC: &[u8] = include_bytes!("../fonts/Roboto-ThinItalic.ttf");
-static CC_BY: &str = include_str!("../templates/cc/by-sa.typ");
+//static CC_BY: &str = include_str!("../templates/cc/by-sa.typ");
 
 // Implement Into<Dict> manually, so we can just pass the struct
 // to the compile function.
@@ -64,6 +65,7 @@ pub enum Variant {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Template {
+    heading: Option<String>,
     key: String,
     clause: Option<String>,
     definitions: Option<Vec<String>>,
@@ -124,19 +126,113 @@ fn load_fonts() -> Result<Vec<Font>> {
 
 pub fn render_pdf(
     policy: generic_odrl::policy::GenericPolicy,
-    template: Arc<Vec<Template>>,
+    blocks: Arc<Vec<Template>>,
 ) -> Result<Vec<u8>> {
     // Read in fonts and the main source file.
     // We can use this template more than once, if needed (Possibly
     // with different input each time).
     let template = TypstTemplate::new(load_fonts()?, TEMPLATE_FILE);
 
+    let mut definitions = vec![];
+
+    let terms = blocks
+        .iter()
+        .filter_map(|tmpl| {
+            if tmpl.required {
+                if tmpl.key == "BaseDefinitions" {
+                    definitions.extend(tmpl.definitions.clone().unwrap_or_default());
+                    None
+                } else {
+                    Some(ContractTerms {
+                        heading: tmpl.heading.clone().unwrap_or_default(),
+                        text: tmpl.clause.clone().unwrap_or_default(),
+                    })
+                }
+            } else {
+                match tmpl.variant.as_str() {
+                    "permission" => {
+                        if policy
+                            .permission
+                            .clone()
+                            .unwrap_or_default()
+                            .iter()
+                            .find(|permission| {
+                                get_string_from_action(&permission.action) == Some(tmpl.key.clone())
+                            })
+                            .is_some()
+                        {
+                            Some(ContractTerms {
+                                heading: tmpl.heading.clone().unwrap_or_default(),
+                                text: tmpl.clause.clone().unwrap_or_default(),
+                            })
+                        } else {
+                            None
+                        }
+                    }
+                    "prohibition" => {
+                        if policy
+                            .prohibition
+                            .clone()
+                            .unwrap_or_default()
+                            .iter()
+                            .find(|permission| {
+                                get_string_from_action(&permission.action) == Some(tmpl.key.clone())
+                            })
+                            .is_some()
+                        {
+                            Some(ContractTerms {
+                                heading: tmpl.heading.clone().unwrap_or_default(),
+                                text: tmpl.clause.clone().unwrap_or_default(),
+                            })
+                        } else {
+                            None
+                        }
+                    }
+                    "duty" => {
+                        if policy
+                            .obligation
+                            .clone()
+                            .unwrap_or_default()
+                            .iter()
+                            .find(|permission| {
+                                get_string_from_action(&permission.action) == Some(tmpl.key.clone())
+                            })
+                            .is_some()
+                        {
+                            Some(ContractTerms {
+                                heading: tmpl.heading.clone().unwrap_or_default(),
+                                text: tmpl.clause.clone().unwrap_or_default(),
+                            })
+                        } else {
+                            None
+                        }
+                    }
+                    _ => None,
+                }
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let base_definitions = definitions.into_iter().fold(
+        ContractTerms {
+            heading: "Definitions".to_string(),
+            text: "".to_string(),
+        },
+        |mut term, elem| {
+            term.text += &format!("\n\n{elem}");
+            term
+        },
+    );
+
+    let mut definitions_all = vec![base_definitions];
+    definitions_all.extend(terms);
+
     let assignee = get_string_from_party(&policy.assignee).unwrap_or_default();
     let assigner = get_string_from_party(&policy.assigner).unwrap_or_default();
     let asset = get_string_from_asset(&policy.target).unwrap_or_default();
 
     let content = Content {
-        v: vec![],
+        v: definitions_all,
         assigner,
         assignee,
         asset,
@@ -170,6 +266,14 @@ pub fn get_string_from_asset(party: &Option<StringOrX<Box<Asset>>>) -> Option<St
             Some(string.clone())
         }
         Some(generic_odrl::generics::StringOrX::<Box<Asset>>::X(asset)) => asset.uid.clone(),
+        _ => None,
+    }
+}
+
+pub fn get_string_from_action(action: &Option<StringOrX<Action>>) -> Option<String> {
+    match &action {
+        Some(generic_odrl::generics::StringOrX::<Action>::String(string)) => Some(string.clone()),
+        Some(generic_odrl::generics::StringOrX::<Action>::X(asset)) => Some(asset.name.clone()),
         _ => None,
     }
 }

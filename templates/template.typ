@@ -46,7 +46,6 @@ For the access and use of the data asset: #strong[#asset]
     == #i. #elem.heading
     #v(2%)
     #elem.text
-    #lorem(50)
   ]
 ]
 

@@ -111,7 +111,7 @@ pub async fn run() -> Result<()> {
     let swagger = SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api);
 
     let app = router
-        .route("/", get(|| async { Redirect::permanent("/swagger-ui") }))
+        .route("/api", get(|| async { Redirect::permanent("/swagger-ui") }))
         .merge(swagger)
         .layer(
             TraceLayer::new_for_http()

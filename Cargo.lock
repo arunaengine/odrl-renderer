@@ -702,7 +702,7 @@ dependencies = [
 [[package]]
 name = "edc_api"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#76c10be309a1ae9b8723492b6fd6e7901c4fd432"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
 dependencies = [
  "serde",
  "serde_derive",
@@ -715,7 +715,7 @@ dependencies = [
 [[package]]
 name = "edc_client"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#76c10be309a1ae9b8723492b6fd6e7901c4fd432"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
 dependencies = [
  "edc_api",
  "reqwest",
@@ -729,7 +729,7 @@ dependencies = [
 [[package]]
 name = "edc_server"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#76c10be309a1ae9b8723492b6fd6e7901c4fd432"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
 
 [[package]]
 name = "either"
@@ -996,13 +996,13 @@ dependencies = [
 [[package]]
 name = "generic_odrl"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#76c10be309a1ae9b8723492b6fd6e7901c4fd432"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
 dependencies = [
+ "edc_api",
  "odrl",
  "serde",
  "serde_derive",
  "serde_json",
- "utoipa",
 ]
 
 [[package]]
@@ -2107,7 +2107,7 @@ dependencies = [
 [[package]]
 name = "odrl"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#76c10be309a1ae9b8723492b6fd6e7901c4fd432"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
 dependencies = [
  "chrono",
  "edc_api",
@@ -2128,7 +2128,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "odrl-renderer"
+name = "odrl_renderer"
 version = "0.1.0"
 dependencies = [
  "anyhow",
