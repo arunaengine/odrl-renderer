@@ -43,9 +43,14 @@ For the access and use of the data asset: #strong[#asset]
 
 #for (i, elem) in content.enumerate() [
   #par(justify: true)[
-    == #i. #elem.heading
-    #v(2%)
-    #elem.text
+    #if elem.heading.len() > 0 [
+      == #eval("i + 1", scope: (i: i)). #elem.heading
+      #v(2%)
+    ]
+    #if elem.text.len() > 0 [
+      #elem.text
+      #parbreak()
+    ]
   ]
 ]
 

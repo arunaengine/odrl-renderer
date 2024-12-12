@@ -213,16 +213,21 @@ pub fn render_pdf(
         })
         .collect::<Vec<_>>();
 
-    let base_definitions = definitions.into_iter().fold(
+    let mut base_definitions = definitions.into_iter().fold(
         ContractTerms {
             heading: "Definitions".to_string(),
             text: "".to_string(),
         },
         |mut term, elem| {
-            term.text += &format!("\n\n{elem}");
+            term.text += &format!("{elem}\n\n");
             term
         },
     );
+    base_definitions.text = base_definitions
+        .text
+        .strip_suffix("\n\n")
+        .unwrap_or_default()
+        .to_string();
 
     let mut definitions_all = vec![base_definitions];
     definitions_all.extend(terms);
