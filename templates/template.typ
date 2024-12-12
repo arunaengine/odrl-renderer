@@ -4,11 +4,10 @@
 #set text(font: "Roboto", 12pt, fallback: false)
 
 #let content = inputs.v
-#let assigner = inputs.assigner.name
-#let assignee = inputs.assignee.name
-#let asset = inputs.asset.name
-#let cc = inputs.at("cc", default: none)
-#let odrl = inputs.odrl
+#let assigner = inputs.assigner
+#let assignee = inputs.assignee
+#let asset = inputs.asset
+#let odrl = bytes(inputs.odrl)
 
 #text(weight: "bold")[#align(center)[Contract on the use of provided data]]
 
@@ -42,16 +41,12 @@ For the access and use of the data asset: #strong[#asset]
 #set par(justify: true)
 #v(1%)
 
-#if cc != none [
-  #eval(cc, mode: "markup")
-]else[
-  #for (i, elem) in content.enumerate() [
+#for (i, elem) in content.enumerate() [
   #par(justify: true)[
     == #i. #elem.heading
     #v(2%)
     #elem.text
     #lorem(50)
-    ]
   ]
 ]
 
