@@ -19,7 +19,7 @@ use crate::template::{self, Template};
 #[openapi(info(
     title = "ODRL renderer and validator",
     license(name = "MIT", url = "https://opensource.org/license/mit/"),
-    version = "0.1.0"
+    version = "0.1.2"
 ))]
 pub struct ArunaApi;
 
