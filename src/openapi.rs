@@ -7,8 +7,9 @@ use axum::{
     Json,
 };
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::{net::SocketAddr, sync::Arc};
-use tower_http::trace::TraceLayer;
+use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use utoipa::{OpenApi, ToSchema};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_swagger_ui::SwaggerUi;
@@ -16,7 +17,11 @@ use utoipa_swagger_ui::SwaggerUi;
 use crate::template::{self, Template};
 
 #[derive(OpenApi)]
-#[openapi(info(title = "ODRL renderer and validator"))]
+#[openapi(info(
+    title = "ODRL renderer and validator",
+    license(name = "MIT", url = "https://opensource.org/license/mit/"),
+    version = "0.1.0"
+))]
 pub struct ArunaApi;
 
 pub fn router(templates: Arc<Vec<Template>>) -> OpenApiRouter {
@@ -32,14 +37,50 @@ pub struct Term {
     pub text: String,
 }
 
-/// Render a data usage agreement as a PDF.
+/// Validate a ODRL Set | Offer | Agreement policy. Returns a JUnit XML report.
 #[utoipa::path(
     post,
     path = "/validate",
-    request_body = serde_json::Value, //odrl::model::policy::AgreementPolicy,
-    responses(
-        (status = 200, content_type = "text/xml", body = Vec<u8>),
+    request_body(
+        description = "ODRL policy to validate",
+        content(
+            (serde_json::Value = "application/json+ld", example = json!(
+  {
+  "@context": "https://www.w3.org/ns/odrl.jsonld",
+  "@type": "Set",
+  "uid": "",
+  "assignee": "https://orcid.org/0000-0002-1825-0097",
+  "assigner": {
+    "uid": "https://orcid.org/0000-0002-1825-0096"
+  },
+  "target": {
+    "uid": "https://doi.org/10.2154/123456"
+  },
+  "permission": [],
+  "prohibition": [],
+  "obligation": [
+    {
+      "@type": "Rule",
+      "action": "cc:Notice",
+      "constraint": []
+    },
+    {
+      "@type": "Rule",
+      "action": "o-dd:attribution",
+      "constraint": []
+    }
+  ]
+})),
+        ),
     ),
+    responses(
+        (status = 200, content_type = "text/xml", body = Vec<u8>, example = r#"<testsuites>
+    <testsuite id="0" name="odrl validation" package="testsuite/odrl validation" tests="1" errors="0" failures="0" hostname="localhost" timestamp="2024-12-12T14:28:07.005251217Z" time="0.000000001">
+      <testcase name="valid odrl" time="0.000000001"/>
+    </testsuite>
+  </testsuites>"#),
+    ),
+    tag = "odrl"
 )]
 pub async fn validate_odrl(Json(request): Json<serde_json::Value>) -> impl IntoResponse {
     let result = crate::validate::validate_odrl(request);
@@ -65,11 +106,42 @@ pub async fn validate_odrl(Json(request): Json<serde_json::Value>) -> impl IntoR
 #[utoipa::path(
     post,
     path = "/render",
-    request_body = serde_json::Value, //odrl::model::policy::AgreementPolicy,
-    responses(
-        (status = 200, content_type = "application/pdf", body = Vec<u8>),
-
+    request_body(
+        description = "ODRL policy to validate",
+        content(
+            (serde_json::Value = "application/json+ld", example = json!(
+  {
+  "@context": "https://www.w3.org/ns/odrl.jsonld",
+  "@type": "Set",
+  "uid": "",
+  "assignee": "https://orcid.org/0000-0002-1825-0097",
+  "assigner": {
+    "uid": "https://orcid.org/0000-0002-1825-0096"
+  },
+  "target": {
+    "uid": "https://doi.org/10.2154/123456"
+  },
+  "permission": [],
+  "prohibition": [],
+  "obligation": [
+    {
+      "@type": "Rule",
+      "action": "cc:Notice",
+      "constraint": []
+    },
+    {
+      "@type": "Rule",
+      "action": "o-dd:attribution",
+      "constraint": []
+    }
+  ]
+})),
+        ),
     ),
+    responses(
+        (status = 200, content_type = "application/pdf", description = "A rendered pdf with odrl.jsonld as attachment", body = Vec<u8>),
+    ),
+    tag = "odrl"
 )]
 pub async fn render_pdf(
     State(state): State<Arc<Vec<Template>>>,
@@ -118,7 +190,8 @@ pub async fn run() -> Result<()> {
                 .on_response(())
                 .on_body_chunk(())
                 .on_eos(()),
-        );
+        )
+        .layer(CorsLayer::very_permissive());
     axum::serve(listener, app.into_make_service()).await?;
 
     Ok(())
