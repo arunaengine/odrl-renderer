@@ -174,7 +174,7 @@ pub async fn render_pdf(
 pub async fn run() -> Result<()> {
     let socket_address = SocketAddr::from(([0, 0, 0, 0], 8080));
     let listener = tokio::net::TcpListener::bind(socket_address).await.unwrap();
-    let templates = Arc::new(template::load_templates().await?);
+    let templates = Arc::new(template::load_templates()?);
     let (router, api) = OpenApiRouter::with_openapi(ArunaApi::openapi())
         .nest("/api", router(templates))
         .split_for_parts();

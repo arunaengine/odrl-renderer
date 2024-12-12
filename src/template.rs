@@ -74,8 +74,9 @@ pub struct Template {
     variant: String,
 }
 
-pub(crate) async fn load_templates() -> Result<Vec<Template>> {
-    let templates = reqwest::get("https://raw.githubusercontent.com/bressco/odrl-builder/refs/heads/odrl-building-blocks/src/assets/buildingblocks.json").await?.json::<Templates>().await?;
+pub(crate) fn load_templates() -> Result<Vec<Template>> {
+    let templates =
+        serde_json::from_str::<Templates>(include_str!("../templates/buildingblocks.json"))?;
 
     Ok(templates.clauses)
 }
