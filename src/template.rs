@@ -75,7 +75,8 @@ pub struct Template {
 }
 
 pub(crate) fn load_templates() -> Result<Vec<Template>> {
-    let templates = serde_json::from_str::<Templates>("../templates/buildingblocks.json")?;
+    let templates =
+        serde_json::from_str::<Templates>(include_str!("../templates/buildingblocks.json"))?;
 
     Ok(templates.clauses)
 }
