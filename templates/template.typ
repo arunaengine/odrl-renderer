@@ -8,6 +8,7 @@
 #let assignee = inputs.assignee
 #let asset = inputs.asset
 #let odrl = bytes(inputs.odrl)
+#let counter = counter("c")
 
 #text(weight: "bold")[#align(center)[Contract on the use of provided data]]
 
@@ -38,17 +39,20 @@ For the access and use of the data asset: #strong[#asset]
 
 = Terms
 
+#counter.step()
+
 #set par(justify: true)
 #v(1%)
 
 #for (i, elem) in content.enumerate() [
   #par(justify: true)[
     #if elem.heading.len() > 0 [
-      == #eval("i + 1", scope: (i: i)). #elem.heading
+      == #context counter.display(). #elem.heading
       #v(2%)
+      #counter.step()
     ]
     #if elem.text.len() > 0 [
-      #elem.text
+      #eval(elem.text, mode: "markup")
       #parbreak()
     ]
   ]

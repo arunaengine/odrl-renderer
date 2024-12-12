@@ -702,7 +702,7 @@ dependencies = [
 [[package]]
 name = "edc_api"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#de0fca413c96b7004b9b4667f09b91971ab31edd"
 dependencies = [
  "serde",
  "serde_derive",
@@ -715,7 +715,7 @@ dependencies = [
 [[package]]
 name = "edc_client"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#de0fca413c96b7004b9b4667f09b91971ab31edd"
 dependencies = [
  "edc_api",
  "reqwest",
@@ -729,7 +729,7 @@ dependencies = [
 [[package]]
 name = "edc_server"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#de0fca413c96b7004b9b4667f09b91971ab31edd"
 
 [[package]]
 name = "either"
@@ -996,7 +996,7 @@ dependencies = [
 [[package]]
 name = "generic_odrl"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#de0fca413c96b7004b9b4667f09b91971ab31edd"
 dependencies = [
  "edc_api",
  "odrl",
@@ -2126,7 +2126,7 @@ dependencies = [
 [[package]]
 name = "odrl"
 version = "0.1.0"
-source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#f926ab5b73e876feb6af306a7fb2f2ccf57e2ffb"
+source = "git+https://github.com/arunaengine/dspace-rs.git?branch=aruna_connector#de0fca413c96b7004b9b4667f09b91971ab31edd"
 dependencies = [
  "chrono",
  "edc_api",
@@ -5285,9 +5285,9 @@ checksum = "3f423a2c17029964870cfaabb1f13dfab7d092a62a29a89264f4d36990ca414a"
 
 [[package]]
 name = "zune-jpeg"
-version = "0.4.13"
+version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16099418600b4d8f028622f73ff6e3deaabdff330fb9a2a131dea781ee8b0768"
+checksum = "99a5bab8d7dedf81405c4bb1f2b83ea057643d9cb28778cea9eecddeedd2e028"
 dependencies = [
  "zune-core",
 ]
