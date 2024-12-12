@@ -10,7 +10,7 @@ async fn main() -> anyhow::Result<()> {
     let filter = EnvFilter::try_from_default_env()
         .unwrap_or("none".into())
         .add_directive("odrl_renderer=trace".parse().unwrap())
-        .add_directive("tower_http=info".parse().unwrap());
+        .add_directive("tower_http=trace".parse().unwrap());
 
     tracing_subscriber::fmt()
         .with_file(true)
